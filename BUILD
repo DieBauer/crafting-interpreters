@@ -1,4 +1,3 @@
-
 alias(
     name = "clox",
     actual = "//src/interpreter/c:clox",
