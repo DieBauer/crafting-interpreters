@@ -102,16 +102,28 @@ class Scanner {
                     // A comment goes until the end of the line.
                     while (peek() != '\n' && !isAtEnd())
                         advance();
-                }
-                else if (match('*')) {
-                    // A comment goes until the end of the block.
-                    while (peek() != '*' && peekNext() != '/' && !isAtEnd()) {
+                } else if (match('*')) {
+                    int nesting = 1;
+                    while (nesting > 0) {
+                        if (peek() == '\0') {
+                            Lox.error(line, "Unterminated comment.");
+                            break;
+                        }
+                        if (peek() == '/' && peekNext() == '*') {
+                            advance();
+                            advance();
+                            nesting++;
+                            continue;
+                        }
+                        if (peek() == '*' && peekNext() == '/') {
+                            advance();
+                            advance();
+                            nesting--;
+                            continue;
+                        }
                         advance();
                     }
-                    //eat 2 */
-                    advance(); advance();
-                }
-                else {
+                } else {
                     addToken(SLASH);
                 }
                 break;
@@ -142,6 +154,7 @@ class Scanner {
                 }
                 break;
         }
+
     }
 
     private void identifier() {
