@@ -25,7 +25,29 @@ class Parser {
     }
 
     private Expr expression() {
-        return equality();
+        return conditional();
+      }
+      
+      private Expr conditional() {
+        Expr expr = equality();
+      
+        if (match(QUESTION)) {
+          Expr thenBranch = expression();
+          consume(COLON,
+              "Expect ':' after then branch of conditional expression.");
+          Expr elseBranch = conditional();
+          expr = new Expr.Conditional(expr, thenBranch, elseBranch);
+        }
+      
+        return expr;
+      }
+
+    private Expr comma() {
+        Expr expr = equality();
+        while (match(COMMA)) {
+            expr = new Expr.Binary(expr, previous(), equality());
+        }
+        return expr;
     }
 
     private Expr equality() {
