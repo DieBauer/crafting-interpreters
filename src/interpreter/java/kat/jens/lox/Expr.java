@@ -9,6 +9,7 @@ abstract class Expr {
     R visitLiteralExpr(Literal expr);
     R visitUnaryExpr(Unary expr);
     R visitConditionalExpr(Conditional expr);
+    R visitVariableExpr(Variable expr);
   }
   static class Binary extends Expr {
     Binary(Expr left, Token operator, Expr right) {
@@ -64,23 +65,34 @@ abstract class Expr {
     final Token operator;
     final Expr right;
   }
-
-  abstract <R> R accept(Visitor<R> visitor);
-
   static class Conditional extends Expr {
-
-    final Expr expr;
-    final Expr thenExpr;
-    final Expr elseExpr;
-    Conditional(Expr expr, Expr thenBranch, Expr elseBranch) {
+    Conditional(Expr expr, Expr thenExpr, Expr elseExpr) {
       this.expr = expr;
-      this.thenExpr = thenBranch;
-      this.elseExpr = elseBranch;
+      this.thenExpr = thenExpr;
+      this.elseExpr = elseExpr;
     }
 
     @Override
     <R> R accept(Visitor<R> visitor) {
       return visitor.visitConditionalExpr(this);
     }
+
+    final Expr expr;
+    final Expr thenExpr;
+    final Expr elseExpr;
   }
+  static class Variable extends Expr {
+    Variable(Token name) {
+      this.name = name;
+    }
+
+    @Override
+    <R> R accept(Visitor<R> visitor) {
+      return visitor.visitVariableExpr(this);
+    }
+
+    final Token name;
+  }
+
+  abstract <R> R accept(Visitor<R> visitor);
 }
