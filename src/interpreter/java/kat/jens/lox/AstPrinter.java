@@ -1,5 +1,6 @@
 package kat.jens.lox;
 
+import kat.jens.lox.Expr.Assign;
 import kat.jens.lox.Expr.Variable;
 
 class AstPrinter implements Expr.Visitor<String> {
@@ -63,12 +64,15 @@ class AstPrinter implements Expr.Visitor<String> {
 
     @Override
     public String visitVariableExpr(Variable expr) {
-        String value;
         if (expr.name.literal == null) {
-            value = "nil";
-        } else {
-            value = expr.name.literal.toString();
+            return "var " + expr.name.lexeme;
         }
-        return "var " + expr.name.lexeme + " = " + value;
+        return "var " + expr.name.lexeme + " = " + expr.name.literal.toString();
     }
+
+    @Override
+    public String visitAssignExpr(Assign expr) {
+        return expr.name.lexeme + " = " + expr.value.accept(this);
+    }
+
 }
