@@ -8,6 +8,9 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 
+import kat.jens.lox.Stmt.Expression;
+import kat.jens.lox.Stmt.Print;
+
 public class Lox {
 
   private static final Interpreter interpreter = new Interpreter();
@@ -28,7 +31,7 @@ public class Lox {
 
   private static void runFile(String path) throws IOException {
     byte[] bytes = Files.readAllBytes(Paths.get(path));
-    run(new String(bytes, Charset.defaultCharset()));
+    run(new String(bytes, Charset.defaultCharset()), false);
 
     // Indicate an error in the exit code.
     if (hadError)
@@ -47,12 +50,12 @@ public class Lox {
       String line = reader.readLine();
       if (line == null)
         break;
-      run(line);
+      run(line, true);
       hadError = false;
     }
   }
 
-  private static void run(String source) {
+  private static void run(String source, boolean isRepl) {
     Scanner scanner = new Scanner(source);
     List<Token> tokens = scanner.scanTokens();
 
@@ -63,7 +66,10 @@ public class Lox {
     if (hadError)
       return;
 
-    interpreter.interpret(statements);
+    if (isRepl && statements.size() == 1 && statements.get(0) instanceof Expression) {
+      interpreter.visitPrintStmt(new Print(((Expression) statements.get(0)).expression));
+    } else
+      interpreter.interpret(statements);
   }
 
   static void error(int line, String message) {
