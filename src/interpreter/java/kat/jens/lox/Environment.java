@@ -2,6 +2,7 @@ package kat.jens.lox;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 class Environment {
     final Environment enclosing;
@@ -18,7 +19,13 @@ class Environment {
 
     Object get(Token name) {
         if (values.containsKey(name.lexeme)) {
-            return values.get(name.lexeme);
+
+            Object value = values.get(name.lexeme);
+            if (Objects.equals(value, null)) {
+                throw new RuntimeError(name,
+                        "Undefined variable '" + name.lexeme + "'.");
+            }
+            return value;
         }
 
         if (enclosing != null)
